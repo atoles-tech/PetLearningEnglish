@@ -1,5 +1,7 @@
 package atl.eng.cards.model;
 
+import java.time.LocalDateTime;
+
 import atl.eng.cards.model.util.Role;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -40,5 +42,6 @@ public class Credential {
     @OneToOne(mappedBy = "credential", cascade = CascadeType.ALL, orphanRemoval = true)
     private RefreshToken refreshToken;
 
-    
+    @Column(name = "created_at")
+    private LocalDateTime createdAt;
 }

@@ -1,5 +1,6 @@
 package atl.eng.cards.services;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -48,7 +49,7 @@ public class CredentialService {
             throw new CredentialAlreadyExists(req.getUsername());
         }
 
-        Credential credential = new Credential(null, req.getUsername(), encoder.encode(req.getPassword()), Role.USER, null);
+        Credential credential = new Credential(null, req.getUsername(), encoder.encode(req.getPassword()), Role.USER, null, LocalDateTime.now());
         return credentialMapper.toCredentialResponse(credentialRepository.save(credential));
     }
 
