@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 import atl.eng.cards.dto.UpdateCardDto;
 import atl.eng.cards.dto.cards.CardResponse;
 import atl.eng.cards.mapper.CardMapper;
-import atl.eng.cards.services.CardService;
+import atl.eng.cards.services.impl.CardServiceImpl;
 import lombok.AllArgsConstructor;
 
 @RestController
@@ -26,7 +26,7 @@ import lombok.AllArgsConstructor;
 @AllArgsConstructor
 public class CardController {
 
-    private CardService cardService;
+    private CardServiceImpl cardService;
     private CardMapper cardMapper;
 
     @PostMapping("/cards")

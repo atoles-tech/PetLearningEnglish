@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import atl.eng.cards.services.CredentialService;
+import atl.eng.cards.services.impl.CredentialServiceImpl;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -17,17 +17,17 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class CredentialController {
     
-    private final CredentialService credentialService;
+    private final CredentialServiceImpl credentialService;
 
     @GetMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN') or (hasRole('USER') and #id.toString().equals(#principal.getName()))")
     public ResponseEntity<?> findById(@PathVariable Long id, Principal principal){
-        return ResponseEntity.ok(credentialService.getById(id));
+        return ResponseEntity.ok(credentialService.findById(id));
     }
 
     @GetMapping("/me")
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     public ResponseEntity<?> findMe(Principal principal){
-        return ResponseEntity.ok(credentialService.getById(Long.valueOf(principal.getName())));
+        return ResponseEntity.ok(credentialService.findById(Long.valueOf(principal.getName())));
     }
 }

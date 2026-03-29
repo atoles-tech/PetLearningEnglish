@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import atl.eng.cards.services.WordService;
+import atl.eng.cards.services.impl.WordServiceImpl;
 import lombok.AllArgsConstructor;
 
 @RestController
@@ -14,7 +14,7 @@ import lombok.AllArgsConstructor;
 @AllArgsConstructor
 public class TranslateController {
     
-    private WordService wordService;
+    private WordServiceImpl wordService;
 
     @GetMapping("/translate")
     public ResponseEntity<?> translate(@RequestParam String q){

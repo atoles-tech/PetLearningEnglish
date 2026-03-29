@@ -11,7 +11,7 @@ import atl.eng.cards.dto.auth.AuthResponse;
 import atl.eng.cards.dto.credential.CredentialCreateRequest;
 import atl.eng.cards.dto.credential.CredentialResponse;
 import atl.eng.cards.dto.token.TokenRequest;
-import atl.eng.cards.services.AuthService;
+import atl.eng.cards.services.impl.AuthServiceImpl;
 import lombok.AllArgsConstructor;
 
 @RestController
@@ -19,7 +19,7 @@ import lombok.AllArgsConstructor;
 @RequestMapping("/api/v1/auth")
 public class AuthController {
 
-    private AuthService authService;
+    private AuthServiceImpl authService;
 
     @PostMapping("/login")
     public ResponseEntity<AuthResponse> login(@RequestBody AuthRequest req){
