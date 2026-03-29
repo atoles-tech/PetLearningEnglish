@@ -1,0 +1,23 @@
+spring:
+  application:
+    name: cards
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/eng
+    username: postgres
+    password: admin
+    driver-class-name: org.postgresql.Driver
+  liquibase:
+    change-log: classpath:db/db.master-changelog.xml
+
+app:
+  profiling: true
+
+  jwt:
+    secret: y6ACUOp8Tu9RP/Gq8skJe3g8L8/g4jeu4yuzS+wsg8DY29BUM1CurCUKYeYmdOO5
+    ttl:
+      access: 600000
+      refresh: 3600000
+
+  frontend:
+    url: http://frontend:3000

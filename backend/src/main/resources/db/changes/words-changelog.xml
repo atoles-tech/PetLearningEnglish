@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="words-changelog" author="atoles">
+        <createTable tableName="words">
+            <column name="id" type="BIGSERIAL" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+
+            <column name="word" type="VARCHAR(70)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+
+            <column name="transcription" type="VARCHAR(70)">
+            </column>
+
+            <column name="translation" type="VARCHAR(70)">
+                <constraints nullable="false"/>
+            </column>
+            
+            <column name="eng_s" type="VARCHAR(255)">
+            </column>
+
+            <column name="ru_s" type="VARCHAR(255)">
+            </column>
+        </createTable>
+    </changeSet>
+
+</databaseChangeLog>
