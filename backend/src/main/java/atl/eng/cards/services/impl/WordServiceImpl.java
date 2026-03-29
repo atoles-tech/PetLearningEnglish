@@ -7,6 +7,7 @@ import atl.eng.cards.dto.TranslationAnswer;
 import atl.eng.cards.exceptions.cards.WordNotFoundException;
 import atl.eng.cards.exceptions.cards.WordNotFoundInDictException;
 import atl.eng.cards.model.Word;
+import atl.eng.cards.model.util.TypeTranslation;
 import atl.eng.cards.repositories.WordRepository;
 import atl.eng.cards.services.DictionaryService;
 import atl.eng.cards.services.TranslationService;
@@ -44,18 +45,33 @@ public class WordServiceImpl implements WordService{
     @Transactional
     public TranslationAnswer getTranslation(String word) { // if we want get any translation
         if (word.trim().contains(" ")) {
-            return new TranslationAnswer(word, translationService.translate(word.trim()));
+            return new TranslationAnswer(
+                word, 
+                translationService.translate(word.trim()), 
+                TypeTranslation.CUSTOM
+            );
         }
 
         if (wordRepository.existsByWord(word.trim())) {
-            return new TranslationAnswer(word, wordRepository.findByWord(word.trim()).get().getTranslation());
+            return new TranslationAnswer(
+                word, 
+                wordRepository.findByWord(word.trim()).get().getTranslation(), 
+                TypeTranslation.DICTIONARY
+            );
         }
 
         try {
-            return new TranslationAnswer(word,
-                    wordRepository.save(dictService.getTranslation(word.trim())).getTranslation());
+            return new TranslationAnswer(
+                    word,
+                    wordRepository.save(dictService.getTranslation(word.trim())).getTranslation(),
+                    TypeTranslation.DICTIONARY
+            );
         } catch (Exception ignored) {
-            return new TranslationAnswer(word, translationService.translate(word.trim()));
+            return new TranslationAnswer(
+                word, 
+                translationService.translate(word.trim()),
+                TypeTranslation.CUSTOM
+            );
         }
 
     }
