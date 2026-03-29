@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 
 import atl.eng.cards.exceptions.auth.IncorrectPasswordException;
 import atl.eng.cards.exceptions.cards.CardAlreadyExistsException;
+import atl.eng.cards.exceptions.cards.WordNotFoundException;
 import atl.eng.cards.exceptions.cards.WordNotFoundInDictException;
 import atl.eng.cards.exceptions.credential.CredentialAlreadyExists;
 import atl.eng.cards.exceptions.dict.URIException;
@@ -21,11 +22,24 @@ import atl.eng.cards.exceptions.token.IncorrectTokenException;
 import atl.eng.cards.exceptions.token.RefreshTokenNotFound;
 
 @ControllerAdvice
-public class GlobalHandler {
+public class ExceptionController {
 
-    @ExceptionHandler(CardAlreadyExistsException.class)
-    public ResponseEntity<?> handleCardAlreadyExists(CardAlreadyExistsException ex) {
+    @ExceptionHandler({
+        CardAlreadyExistsException.class,
+        CredentialAlreadyExists.class
+    })
+    public ResponseEntity<?> handlExistsExceptions(RuntimeException ex) {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.CONFLICT);
+    }
+
+    @ExceptionHandler({
+        WordNotFoundInDictException.class,
+        WordNotFoundException.class,
+        RefreshTokenNotFound.class,
+        CredentialNotFoundException.class,
+    })
+    public ResponseEntity<?> handlNotFoundExceptions(RuntimeException ex) {
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(URIException.class)
@@ -33,29 +47,9 @@ public class GlobalHandler {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.CONFLICT);
     }
 
-    @ExceptionHandler(WordNotFoundInDictException.class)
-    public ResponseEntity<?> handleWordNotFoundInDictException(WordNotFoundInDictException ex) {
-        return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
-    }
-
-    @ExceptionHandler(RefreshTokenNotFound.class)
-    public ResponseEntity<?> handleRefreshTokenNotFound(RefreshTokenNotFound ex) {
-        return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
-    }
-
     @ExceptionHandler(IncorrectTokenException.class)
     public ResponseEntity<?> handleIncorrectTokenException(IncorrectTokenException ex) {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
-    }
-
-    @ExceptionHandler(CredentialAlreadyExists.class)
-    public ResponseEntity<?> handleCredentialAlreadyExists(CredentialAlreadyExists ex) {
-        return new ResponseEntity<>(ex.getMessage(), HttpStatus.CONFLICT);
-    }
-
-    @ExceptionHandler(CredentialNotFoundException.class)
-    public ResponseEntity<?> handleCredentialNotFoundException(CredentialNotFoundException ex) {
-        return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(IncorrectPasswordException.class)
