@@ -1,6 +1,6 @@
 package atl.eng.cards.services;
 
-import atl.eng.cards.dto.TranslationAnswer;
+import atl.eng.cards.dto.translation.TranslationAnswer;
 import atl.eng.cards.model.Word;
 
 public interface WordService {

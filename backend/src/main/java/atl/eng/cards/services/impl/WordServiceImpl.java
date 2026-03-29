@@ -3,7 +3,7 @@ package atl.eng.cards.services.impl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import atl.eng.cards.dto.TranslationAnswer;
+import atl.eng.cards.dto.translation.TranslationAnswer;
 import atl.eng.cards.exceptions.cards.WordNotFoundException;
 import atl.eng.cards.exceptions.cards.WordNotFoundInDictException;
 import atl.eng.cards.model.Word;
@@ -62,15 +62,16 @@ public class WordServiceImpl implements WordService{
 
         try {
             return new TranslationAnswer(
-                    word,
-                    wordRepository.save(dictService.getTranslation(word.trim())).getTranslation(),
-                    TypeTranslation.DICTIONARY
+                word,
+                wordRepository.save(dictService.getTranslation(word.trim())).getTranslation(),
+                TypeTranslation.DICTIONARY
             );
         } catch (Exception ignored) {
             return new TranslationAnswer(
                 word, 
                 translationService.translate(word.trim()),
-                TypeTranslation.CUSTOM
+                TypeTranslation.CUSTOM,
+                dictService.getTips(word)
             );
         }
 

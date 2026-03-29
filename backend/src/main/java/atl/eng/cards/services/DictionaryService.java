@@ -1,22 +1,32 @@
 package atl.eng.cards.services;
 
 
+import java.util.List;
+
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 import org.springframework.stereotype.Service;
 
+import com.google.gson.Gson;
+
+import atl.eng.cards.dto.translation.Tip;
+import atl.eng.cards.dto.translation.util.Tips;
 import atl.eng.cards.exceptions.cards.WordNotFoundInDictException;
+import atl.eng.cards.exceptions.dict.URIException;
 import atl.eng.cards.model.Word;
+import lombok.RequiredArgsConstructor;
 
 @Service
+@RequiredArgsConstructor
 public class DictionaryService{
 
-    private static final String URL = "https://wooordhunt.ru/word/";
+    private static final String BASE_URL = "https://wooordhunt.ru/word/";
+    private static final String BASE_URL_TIPS = "https://wooordhunt.ru/openscripts/forjs/get_tips.php?abc=";
 
     public Word getTranslation(String word) throws Exception{
         try {
-            Document doc = Jsoup.connect(URL + word)
+            Document doc = Jsoup.connect(BASE_URL + word)
                 .userAgent("Mozilla/5.0")
                 .timeout(5000)
                 .get();
@@ -54,4 +64,18 @@ public class DictionaryService{
             throw new WordNotFoundInDictException(word);
         }
     }
+
+    public List<Tip> getTips(String word){
+        try {
+            Document doc = Jsoup.connect(BASE_URL_TIPS + word)
+                .userAgent("Mozilla/5.0")
+                .timeout(5000)
+                .get();
+
+            Tips tips = new Gson().fromJson(doc.body().text(), Tips.class);
+            return tips.getTips();
+        } catch (Exception e) {
+            throw new URIException();
+        }
+    } 
 }

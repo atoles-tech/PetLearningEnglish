@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import atl.eng.cards.dto.TranslationAnswer;
+import atl.eng.cards.dto.translation.TranslationAnswer;
 import atl.eng.cards.services.impl.WordServiceImpl;
 import lombok.AllArgsConstructor;
 
