@@ -59,20 +59,20 @@ public class CardServiceImpl implements CardService{
         cardRepository.saveAll(repCards);
     }
 
-    public List<Card> learnCards(Integer limit, Long userId){
-        return cardRepository.findCardsForLearn(limit, userId);
+    public List<CardResponse> learnCards(Integer limit, Long userId){
+        return cardMapper.toCardResponseList(cardRepository.findCardsForLearn(limit, userId));
     }
 
-    public List<Card> repeatCards(Integer limit, Long userId){
-        return cardRepository.findCardsForRepeat(limit, userId);
+    public List<CardResponse> repeatCards(Integer limit, Long userId){
+        return cardMapper.toCardResponseList(cardRepository.findCardsForRepeat(limit, userId));
     }
 
-    public List<Card> findAllCardsByUserId(Long userId){
-        return cardRepository.findCardsByUserId(userId);
+    public List<CardResponse> findAllCardsByUserId(Long userId){
+        return cardMapper.toCardResponseList(cardRepository.findCardsByUserId(userId));
     }
 
-    public List<Card> getCards(){
-        return cardRepository.findAll();
+    public List<CardResponse> getCards(){
+        return cardMapper.toCardResponseList(cardRepository.findAll());
     }
 
     public Boolean isOwnerCards(List<UpdateCardDto> cards, String userId){

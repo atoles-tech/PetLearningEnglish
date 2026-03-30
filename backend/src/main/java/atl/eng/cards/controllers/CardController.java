@@ -17,8 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import atl.eng.cards.dto.UpdateCardDto;
 import atl.eng.cards.dto.cards.CardResponse;
-import atl.eng.cards.mapper.CardMapper;
-import atl.eng.cards.services.impl.CardServiceImpl;
+import atl.eng.cards.services.CardService;
 import lombok.AllArgsConstructor;
 
 @RestController
@@ -26,12 +25,11 @@ import lombok.AllArgsConstructor;
 @AllArgsConstructor
 public class CardController {
 
-    private CardServiceImpl cardService;
-    private CardMapper cardMapper;
+    private CardService cardService;
 
     @PostMapping("/cards")
     @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
-    public ResponseEntity<?> createCard(@RequestParam String word, Principal principal) {
+    public ResponseEntity<CardResponse> createCard(@RequestParam String word, Principal principal) {
         return ResponseEntity.ok(cardService.addCard(word, Long.valueOf(principal.getName())));
     }
 
@@ -44,15 +42,15 @@ public class CardController {
             Principal principal) { // type in [learn, repeat]
                 
         if (type.equals("learn")) {
-            return ResponseEntity.ok(cardMapper.toCardResponseList(cardService.learnCards(limit, id)));
+            return ResponseEntity.ok(cardService.learnCards(limit, id));
         }
 
         if (type.equals("all")) {
 
-            return ResponseEntity.ok(cardMapper.toCardResponseList(cardService.findAllCardsByUserId(id)));
+            return ResponseEntity.ok(cardService.findAllCardsByUserId(id));
         }
 
-        return ResponseEntity.ok(cardMapper.toCardResponseList(cardService.repeatCards(limit, id)));
+        return ResponseEntity.ok(cardService.repeatCards(limit, id));
 
     }
 
