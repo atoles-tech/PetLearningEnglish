@@ -12,6 +12,6 @@ import lombok.Setter;
 @Setter
 public class TokenRequest {
     
-    @NotBlank(message = "token is required")
+    @NotBlank(message = "Token is required")
     private String token;
 }

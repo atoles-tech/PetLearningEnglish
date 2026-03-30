@@ -1,11 +1,11 @@
 package atl.eng.cards.controllers;
 
-import java.security.Principal;
 import java.util.List;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import atl.eng.cards.dto.UpdateCardDto;
 import atl.eng.cards.dto.cards.CardResponse;
+import atl.eng.cards.jwt.UserDetailsImpl;
 import atl.eng.cards.services.CardService;
 import lombok.AllArgsConstructor;
 
@@ -29,17 +30,20 @@ public class CardController {
 
     @PostMapping("/cards")
     @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
-    public ResponseEntity<CardResponse> createCard(@RequestParam String word, Principal principal) {
-        return ResponseEntity.ok(cardService.addCard(word, Long.valueOf(principal.getName())));
+    public ResponseEntity<CardResponse> createCard(
+        @RequestParam String word, 
+        @AuthenticationPrincipal UserDetailsImpl userDetailsImpl
+    ) {
+        return ResponseEntity.ok(cardService.addCard(word, Long.valueOf(userDetailsImpl.getUsername())));
     }
 
     @GetMapping("/users/{id}/cards")
-    @PreAuthorize("hasRole('ADMIN') or (hasRole('USER') and #principal.getName().equals(#id.toString()))")
+    @PreAuthorize("hasRole('ADMIN') or (hasRole('USER') and #userDetailsImpl.getId().equals(#id))")
     public ResponseEntity<List<CardResponse>> getCards(
             @RequestParam(defaultValue = "10") Integer limit,
             @RequestParam(defaultValue = "learn") String type,
             @PathVariable Long id,
-            Principal principal) { // type in [learn, repeat]
+            @AuthenticationPrincipal UserDetailsImpl userDetailsImpl) { // type in [learn, repeat, all]
                 
         if (type.equals("learn")) {
             return ResponseEntity.ok(cardService.learnCards(limit, id));
@@ -54,10 +58,12 @@ public class CardController {
 
     }
 
-    // TODO
     @PutMapping("/cards")
-    @PreAuthorize("hasRole('ADMIN') or (hasRole('USER') and @cardService.isOwnerCards(#cards, #principal.name))")
-    public ResponseEntity<?> updateCards(@RequestBody List<UpdateCardDto> cards, Principal principal) {
+    @PreAuthorize("hasRole('ADMIN') or (hasRole('USER') and @cardService.isOwnerCards(#cards, #userDetailsImpl.getUsername()))")
+    public ResponseEntity<?> updateCards(
+        @RequestBody List<UpdateCardDto> cards, 
+        @AuthenticationPrincipal UserDetailsImpl userDetailsImpl
+    ) {
         cardService.updateCards(cards);
         return new ResponseEntity<>(HttpStatus.OK);
     }

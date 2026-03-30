@@ -1,6 +1,5 @@
 package atl.eng.cards.jwt;
 
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -22,13 +21,13 @@ public class UserDetailsServiceImpl implements UserDetailsService{
             .findByUsername(username)
             .orElseThrow(()->new UsernameNotFoundException(username));
         
-        return User.builder()
-            .authorities(credential.getRole().getName())
-            .accountLocked(false)
-            .accountExpired(false)
-            .password(credential.getHashPassword())
-            .username(credential.getId().toString())
-            .build();
+        UserDetailsImpl user = new UserDetailsImpl(
+            credential.getId(), 
+            username, 
+            credential.getRole()
+        );
+
+        return user;
     }
     
     

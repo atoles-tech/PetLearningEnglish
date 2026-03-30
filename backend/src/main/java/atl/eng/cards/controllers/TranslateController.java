@@ -18,7 +18,9 @@ public class TranslateController {
     private WordServiceImpl wordService;
 
     @GetMapping("/translate")
-    public ResponseEntity<TranslationAnswer> translate(@RequestParam String q){
+    public ResponseEntity<TranslationAnswer> translate(
+        @RequestParam String q
+    ){
         return ResponseEntity.ok(wordService.getTranslation(q));
     }
 
