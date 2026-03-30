@@ -14,6 +14,7 @@ public class TranslationAnswer {
     private String word;
     private String translation;
     private TypeTranslation typeTranslation;
+    private String definition;
     private List<Tip> tips;
 
     public TranslationAnswer(String word, String translation, TypeTranslation typeTranslation) {
@@ -22,4 +23,17 @@ public class TranslationAnswer {
         this.typeTranslation = typeTranslation;
     }
     
+    public TranslationAnswer(String word, String translation, TypeTranslation typeTranslation, List<Tip> tips) {
+        this.word = word;
+        this.translation = translation;
+        this.typeTranslation = typeTranslation;
+        this.tips = tips;
+    }
+
+    public TranslationAnswer(String word, String translation, TypeTranslation typeTranslation, String definition) {
+        this.word = word;
+        this.translation = translation;
+        this.typeTranslation = typeTranslation;
+        this.definition = definition;
+    }
 }

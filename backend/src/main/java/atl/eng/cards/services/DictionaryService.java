@@ -21,12 +21,15 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class DictionaryService{
 
-    private static final String BASE_URL = "https://wooordhunt.ru/word/";
+    private static final String BASE_URL_DEFINITIONS = "https://www.oxfordlearnersdictionaries.com/definition/english/";
+
+    private static final String BASE_URL_GENERAL = "https://wooordhunt.ru/word/";
     private static final String BASE_URL_TIPS = "https://wooordhunt.ru/openscripts/forjs/get_tips.php?abc=";
 
+    
     public Word getTranslation(String word) throws Exception{
         try {
-            Document doc = Jsoup.connect(BASE_URL + word)
+            Document doc = Jsoup.connect(BASE_URL_GENERAL + word)
                 .userAgent("Mozilla/5.0")
                 .timeout(5000)
                 .get();
@@ -50,6 +53,8 @@ public class DictionaryService{
             if(strings.length > 2){
                 result = strings[0] + ", " + strings[1];
             }
+            
+            String definition = getDefinition(word);
 
             return Word.builder()
                 .word(word)
@@ -57,7 +62,27 @@ public class DictionaryService{
                 .translation(translationElements.isEmpty()?null:result)
                 .engSentences(engSentences.isEmpty()?null:engSentences.getFirst().text().trim())
                 .ruSentences(ruSentences.isEmpty()?null:ruSentences.getFirst().text().trim())
+                .definition(definition.isEmpty()?null:definition)
                 .build();
+
+        } catch (Exception e) {
+            // situation when word doesn't exist in our dictinary
+            throw new WordNotFoundInDictException(word);
+        }
+    }
+
+    public String getDefinition(String word){
+        try {
+            Document docDefinition = Jsoup.connect(BASE_URL_DEFINITIONS + word)
+                .userAgent("Mozilla/5.0")
+                .timeout(5000)
+                .get();
+
+            Elements defenitionsElements = docDefinition.select("span.def");
+            
+            String definition = defenitionsElements.first().text();
+
+            return definition;
 
         } catch (Exception e) {
             // situation when word doesn't exist in our dictinary

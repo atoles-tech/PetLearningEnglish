@@ -26,6 +26,12 @@ public class WordServiceImpl implements WordService{
 
     @Transactional
     public Word addWord(String word) {
+        if(word.isEmpty()){
+            throw new WordNotFoundInDictException(word);
+        }
+
+
+        
         if (wordRepository.existsByWord(word)) {
             return wordRepository.findByWord(word).get();
         }
@@ -53,18 +59,24 @@ public class WordServiceImpl implements WordService{
         }
 
         if (wordRepository.existsByWord(word.trim())) {
+            Word currentWord = wordRepository.findByWord(word.trim()).get();
+
             return new TranslationAnswer(
                 word, 
                 wordRepository.findByWord(word.trim()).get().getTranslation(), 
-                TypeTranslation.DICTIONARY
+                TypeTranslation.DICTIONARY,
+                currentWord.getDefinition()
             );
         }
 
         try {
+            Word currentWord = dictService.getTranslation(word.trim());
+
             return new TranslationAnswer(
                 word,
-                wordRepository.save(dictService.getTranslation(word.trim())).getTranslation(),
-                TypeTranslation.DICTIONARY
+                wordRepository.save(currentWord).getTranslation(),
+                TypeTranslation.DICTIONARY,
+                currentWord.getDefinition()
             );
         } catch (Exception ignored) {
             return new TranslationAnswer(

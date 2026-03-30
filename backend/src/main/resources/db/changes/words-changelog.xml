@@ -29,4 +29,10 @@
         </createTable>
     </changeSet>
 
+    <changeSet id="words-changelog-add-column-definition" author="atoles">
+        <addColumn tableName="words">
+            <column name="definition" type="VARCHAR(255)"></column>
+        </addColumn>
+    </changeSet>
+
 </databaseChangeLog>

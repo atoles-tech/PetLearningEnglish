@@ -18,4 +18,5 @@ public class WordResponse {
     private String translation;
     private String engSentences;
     private String ruSentences;
+    private String definition;
 }

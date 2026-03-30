@@ -38,4 +38,7 @@ public class Word {
 
     @Column(name = "ru_s", length = 255)
     private String ruSentences;
+
+    @Column(name = "definition", length = 255)
+    private String definition;
 }
