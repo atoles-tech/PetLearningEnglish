@@ -1,11 +1,15 @@
 package atl.eng.cards.services.impl;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import atl.eng.cards.dto.cards.WordResponse;
 import atl.eng.cards.dto.translation.TranslationAnswer;
 import atl.eng.cards.exceptions.cards.WordNotFoundException;
 import atl.eng.cards.exceptions.cards.WordNotFoundInDictException;
+import atl.eng.cards.mapper.WordMapper;
 import atl.eng.cards.model.Word;
 import atl.eng.cards.model.util.TypeTranslation;
 import atl.eng.cards.repositories.WordRepository;
@@ -23,6 +27,8 @@ public class WordServiceImpl implements WordService{
 
     private final DictionaryService dictService;
     private final TranslationService translationService;
+
+    private final WordMapper wordMapper;
 
     @Transactional
     public Word addWord(String word) {
@@ -92,6 +98,22 @@ public class WordServiceImpl implements WordService{
     public Word findByWord(String word) {
         return wordRepository.findByWord(word)
             .orElseThrow(()->new WordNotFoundException(word));
+    }
+
+    @Override
+    public Page<WordResponse> findAll(Pageable pageable) {
+        return wordMapper.toWordResponsePage(wordRepository.findAll(pageable));
+    }
+
+    @Override
+    public Page<WordResponse> findAllByWord(String word, Pageable pageable) {
+        return wordMapper.toWordResponsePage(wordRepository.findAllByWord(word.toLowerCase(), pageable));
+    }
+
+    @Override
+    public WordResponse findById(Long id) {
+        return wordMapper.toWordResponse(wordRepository.findById(id)
+            .orElseThrow(()->new WordNotFoundException(id)));
     }
 
 }
