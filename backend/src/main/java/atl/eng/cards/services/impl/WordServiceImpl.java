@@ -143,7 +143,7 @@ public class WordServiceImpl implements WordService {
         wordRepository.save(word);
     }
 
-    @Scheduled(fixedRate = 300_000)
+    @Scheduled(fixedRate = 20_000)
     @Transactional
     public void getDefinitions() {
         log.info("Started find definitions to words");
@@ -158,6 +158,8 @@ public class WordServiceImpl implements WordService {
             currentWord.setLevel(level);
 
             wordService.saveWord(currentWord);
+
+            dictService.downloadAudioFile(currentWord.getWord(), currentWord.getAudioUrl());    
             log.info("Saved definition and level for word: '{}', definition: '{}', level: '{}'", word, definition, level);
         }
         log.info("Finished find definitions");

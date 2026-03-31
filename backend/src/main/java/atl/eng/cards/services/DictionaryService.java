@@ -1,5 +1,13 @@
 package atl.eng.cards.services;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
@@ -20,6 +28,7 @@ import atl.eng.cards.exceptions.cards.WordNotFoundInDictException;
 import atl.eng.cards.exceptions.dict.URIException;
 import atl.eng.cards.model.Word;
 import atl.eng.cards.model.util.Level;
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 
@@ -42,6 +51,16 @@ public class DictionaryService {
     private final RestTemplate restTemplate;
 
     private Queue<String> queueWords = new LinkedList<>();
+
+    @PostConstruct
+    public void checkDir(){
+        File file = new File("audio");
+
+        if(!file.isDirectory()){
+            file.mkdir();
+            log.info("Directory 'audio' created");
+        }
+    }
 
     public Word getTranslation(String word) throws Exception {
         try {
@@ -103,10 +122,9 @@ public class DictionaryService {
 
             for (int i = 0; i < arraySenses.length(); i++) {
                 if (definition == null ||
-                    definition.contains(";") ||
-                    definition.contains("(") ||
-                    definition.contains(")")
-                ) {
+                        definition.contains(";") ||
+                        definition.contains("(") ||
+                        definition.contains(")")) {
                     definition = arraySenses.getJSONObject(i).getString("definition");
                 } else {
                     break;
@@ -133,14 +151,14 @@ public class DictionaryService {
 
             Elements levels = doc.select("div.ddef_h > span > span");
 
-            if(levels.isEmpty()){
+            if (levels.isEmpty()) {
                 return null;
             }
 
             Level level = Level.valueOf(levels.get(0).text());
 
             log.info("Found level for word '{}': {}", word, level);
-            
+
             return level;
         } catch (Exception e) {
             log.error("Error with finding level '{}': {}", word, e.getMessage());
@@ -170,7 +188,34 @@ public class DictionaryService {
         }
     }
 
-    public void addWordsToQueue(List<String> words){
+    public void downloadAudioFile(String word, String audioUrl) {
+
+        try {
+            URL url = new URI(audioUrl).toURL();
+
+            InputStream in = url.openConnection().getInputStream();
+            OutputStream out = new FileOutputStream("audio/"+word + ".mp3");
+
+            int n;
+            byte[] buffer = new byte[4098];
+
+            while(in.available() > 0){
+                n = in.read(buffer);
+                out.write(buffer, 0, n);
+            }
+
+            in.close();
+            out.close();
+
+            log.info("Audio file saved for word: '{}'", word);
+        } catch (IOException ex) {
+            log.error("Error save audio file {}",ex.getMessage());
+        } catch (URISyntaxException ex){
+            log.error("Error save audio file {}",ex.getMessage());
+        }
+    }
+
+    public void addWordsToQueue(List<String> words) {
         this.queueWords.addAll(words);
     }
 
@@ -181,4 +226,5 @@ public class DictionaryService {
     public boolean available() {
         return queueWords.size() != 0;
     }
+
 }
