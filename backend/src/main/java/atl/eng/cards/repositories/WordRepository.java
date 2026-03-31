@@ -1,5 +1,6 @@
 package atl.eng.cards.repositories;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.domain.Page;
@@ -27,4 +28,7 @@ public interface WordRepository extends JpaRepository<Word, Long> {
     @Modifying
     @Query("DELETE FROM words w WHERE w.word = :word")
     void deleteByWord(@Param("word") String word);  
+
+    @Query("SELECT w FROM words w WHERE w.definition IS null")
+    List<Word> findWordsWhereDefinitionIsNull();
 }

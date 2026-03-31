@@ -1,7 +1,10 @@
 package atl.eng.cards.model;
 
+import atl.eng.cards.model.util.Level;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -44,4 +47,8 @@ public class Word {
 
     @Column(name = "audio_url", length = 255)
     private String audioUrl;
+
+    @Column(name = "level", length = 4)
+    @Enumerated(EnumType.STRING)
+    private Level level;
 }

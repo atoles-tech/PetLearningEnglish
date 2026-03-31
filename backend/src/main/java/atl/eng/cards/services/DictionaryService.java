@@ -19,6 +19,7 @@ import atl.eng.cards.dto.translation.util.Tips;
 import atl.eng.cards.exceptions.cards.WordNotFoundInDictException;
 import atl.eng.cards.exceptions.dict.URIException;
 import atl.eng.cards.model.Word;
+import atl.eng.cards.model.util.Level;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 
@@ -27,12 +28,16 @@ import lombok.extern.log4j.Log4j2;
 @RequiredArgsConstructor
 public class DictionaryService {
 
-    private static final String BASE_URL_DEFINITIONS = "https://freedictionaryapi.com/api/v1/entries/en/";
+    private static final String BASE_URL_DEFINITIONS = "https://api.dictionaryapi.dev/api/v2/entries/en/";
 
-    private static final String BASE_URL = "https://wooordhunt.ru";
+    // private static final String BASE_URL = "https://wooordhunt.ru";
 
     private static final String BASE_URL_WORD = "https://wooordhunt.ru/word/";
     private static final String BASE_URL_TIPS = "https://wooordhunt.ru/openscripts/forjs/get_tips.php?abc=";
+
+    private static final String BASE_URL_AUDIO = "https://wooordhunt.ru/data/sound/sow/us/";
+
+    private static final String BASE_URL_LEVEL = "https://dictionary.cambridge.org/ru/%D1%81%D0%BB%D0%BE%D0%B2%D0%B0%D1%80%D1%8C/%D0%B0%D0%BD%D0%B3%D0%BB%D0%B8%D0%B9%D1%81%D0%BA%D0%B8%D0%B9/";
 
     private final RestTemplate restTemplate;
 
@@ -45,19 +50,10 @@ public class DictionaryService {
                     .timeout(5000)
                     .get();
 
-            // Elements wordFormsElements = doc.select("div#word_forms > a");
-
-            // if (!wordFormsElements.isEmpty()) {
-            // String formWordURL = wordFormsElements.getFirst().attr("href");
-            // return getTranslation(formWordURL.substring(6));
-            // }
-            //
-
             Elements transcriptionElements = doc.select("span.transcription");
             Elements translationElements = doc.select("div.t_inline_en");
             Elements engSentences = doc.select("p.ex_o");
             Elements ruSentences = doc.select("p.ex_t");
-            Elements audioElements = doc.select("source");
 
             String result = translationElements.getFirst().text();
             String[] strings = result.split(",");
@@ -76,7 +72,7 @@ public class DictionaryService {
                     .translation(translationElements.isEmpty() ? null : result)
                     .engSentences(engSentences.isEmpty() ? null : engSentences.getFirst().text().trim())
                     .ruSentences(ruSentences.isEmpty() ? null : ruSentences.getFirst().text().trim())
-                    .audioUrl(audioElements.isEmpty() ? null : BASE_URL + audioElements.getFirst().attr("src"))
+                    .audioUrl(BASE_URL_AUDIO + word + ".mp3")
                     .build();
 
         } catch (Exception e) {
@@ -88,15 +84,16 @@ public class DictionaryService {
     public String getDefinition(String word) {
         try {
             String definitionJson = restTemplate.getForObject(BASE_URL_DEFINITIONS + word, String.class);
-            JSONObject jsonObject = new JSONObject(definitionJson);
+            JSONArray jsonArray = new JSONArray(definitionJson);
+            JSONObject jsonObject = jsonArray.getJSONObject(0);
 
-            JSONArray arrayEntries = jsonObject.getJSONArray("entries");
+            JSONArray arrayEntries = jsonObject.getJSONArray("meanings");
             if (arrayEntries.isEmpty()) {
                 log.warn("Definition not found for '{}'", word);
                 return null;
             }
 
-            JSONArray arraySenses = arrayEntries.getJSONObject(0).getJSONArray("senses");
+            JSONArray arraySenses = arrayEntries.getJSONObject(0).getJSONArray("definitions");
             if (arraySenses.isEmpty()) {
                 log.warn("Definition not found for '{}'", word);
                 return null;
@@ -127,6 +124,30 @@ public class DictionaryService {
         }
     }
 
+    public Level getLevel(String word) {
+        try {
+            Document doc = Jsoup.connect(BASE_URL_LEVEL + word)
+                    .userAgent("Mozilla/5.0")
+                    .timeout(5000)
+                    .get();
+
+            Elements levels = doc.select("div.ddef_h > span > span");
+
+            if(levels.isEmpty()){
+                return null;
+            }
+
+            Level level = Level.valueOf(levels.get(0).text());
+
+            log.info("Found level for word '{}': {}", word, level);
+            
+            return level;
+        } catch (Exception e) {
+            log.error("Error with finding level '{}': {}", word, e.getMessage());
+            throw new WordNotFoundInDictException(word);
+        }
+    }
+
     public List<Tip> getTips(String word) {
         try {
             Document doc = Jsoup.connect(BASE_URL_TIPS + word)
@@ -147,6 +168,10 @@ public class DictionaryService {
             log.error("Error find tips for word: '{}': {}", word, e.getMessage());
             throw new URIException();
         }
+    }
+
+    public void addWordsToQueue(List<String> words){
+        this.queueWords.addAll(words);
     }
 
     public String peek() {

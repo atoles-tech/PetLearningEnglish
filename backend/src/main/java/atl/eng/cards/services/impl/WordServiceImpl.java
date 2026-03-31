@@ -1,5 +1,7 @@
 package atl.eng.cards.services.impl;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
@@ -14,11 +16,13 @@ import atl.eng.cards.exceptions.cards.WordNotFoundException;
 import atl.eng.cards.exceptions.cards.WordNotFoundInDictException;
 import atl.eng.cards.mapper.WordMapper;
 import atl.eng.cards.model.Word;
+import atl.eng.cards.model.util.Level;
 import atl.eng.cards.model.util.TypeTranslation;
 import atl.eng.cards.repositories.WordRepository;
 import atl.eng.cards.services.DictionaryService;
 import atl.eng.cards.services.TranslationService;
 import atl.eng.cards.services.WordService;
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 
@@ -41,6 +45,13 @@ public class WordServiceImpl implements WordService {
     @Autowired
     public void setWordService(WordService wordService) {
         this.wordService = wordService;
+    }
+
+    @PostConstruct
+    public void init(){
+        List<Word> words = wordRepository.findWordsWhereDefinitionIsNull();
+        dictService.addWordsToQueue(words.stream().map(w->w.getWord()).toList());
+
     }
 
     @Transactional
@@ -82,7 +93,8 @@ public class WordServiceImpl implements WordService {
                     wordRepository.findByWord(word.trim()).get().getTranslation(),
                     TypeTranslation.DICTIONARY,
                     currentWord.getDefinition(),
-                    currentWord.getAudioUrl());
+                    currentWord.getAudioUrl(),
+                    currentWord.getLevel());
         }
 
         try {
@@ -93,7 +105,8 @@ public class WordServiceImpl implements WordService {
                     wordRepository.save(currentWord).getTranslation(),
                     TypeTranslation.DICTIONARY,
                     currentWord.getDefinition(),
-                    currentWord.getAudioUrl());
+                    currentWord.getAudioUrl(),
+                    currentWord.getLevel());
         } catch (Exception ignored) {
             return new TranslationAnswer(
                     word,
@@ -138,13 +151,15 @@ public class WordServiceImpl implements WordService {
         while (dictService.available()) {
             String word = dictService.peek();
             String definition = dictService.getDefinition(word);
+            Level level = dictService.getLevel(word);
 
             Word currentWord = findByWord(word);
 
             currentWord.setDefinition(definition);
+            currentWord.setLevel(level);
 
             wordService.saveWord(currentWord);
-            log.info("Saved definition for word: '{}', definition: '{}'", word, definition);
+            log.info("Saved definition and level for word: '{}', definition: '{}', level: '{}'", word, definition, level);
         }
         log.info("Finished find definitions");
 
