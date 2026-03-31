@@ -13,6 +13,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 
 @Entity(name = "words")
 @AllArgsConstructor
@@ -20,6 +21,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @Builder
+@ToString
 public class Word {
 
     @Id
