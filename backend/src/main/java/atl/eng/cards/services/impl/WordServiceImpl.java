@@ -20,7 +20,6 @@ import atl.eng.cards.model.util.Level;
 import atl.eng.cards.model.util.TypeTranslation;
 import atl.eng.cards.repositories.WordRepository;
 import atl.eng.cards.services.DictionaryService;
-import atl.eng.cards.services.TranscriptionService;
 import atl.eng.cards.services.TranslationService;
 import atl.eng.cards.services.WordService;
 import jakarta.annotation.PostConstruct;
@@ -37,7 +36,6 @@ public class WordServiceImpl implements WordService {
 
     private final DictionaryService dictService;
     private final TranslationService translationService;
-    private final TranscriptionService transcriptionService;
 
     private final WordMapper wordMapper;
 
@@ -53,12 +51,6 @@ public class WordServiceImpl implements WordService {
     public void init(){
         List<Word> words = wordRepository.findWordsWhereDefinitionIsNull();
         dictService.addWordsToQueue(words.stream().map(w->w.getWord()).toList());
-
-        //test
-        List<Word> allWords = wordRepository.findAll();
-        Word word = wordRepository.findById(16L).get();
-
-        System.out.println(transcriptionService.findNearPronancuationWords(allWords, word, 0.66));
     }
 
     @Transactional
