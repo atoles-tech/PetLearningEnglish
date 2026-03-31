@@ -41,4 +41,7 @@ public class Word {
 
     @Column(name = "definition", length = 255)
     private String definition;
+
+    @Column(name = "audio_url", length = 255)
+    private String audioUrl;
 }

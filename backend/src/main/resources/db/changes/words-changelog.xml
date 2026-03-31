@@ -35,4 +35,10 @@
         </addColumn>
     </changeSet>
 
+    <changeSet id="words-changelog-add-column-audio_url" author="atoles">
+        <addColumn tableName="words">
+            <column name="audio_url" type="VARCHAR(255)"></column>
+        </addColumn>
+    </changeSet>
+
 </databaseChangeLog>

@@ -19,4 +19,5 @@ public class WordResponse {
     private String engSentences;
     private String ruSentences;
     private String definition;
+    private String audioUrl;
 }

@@ -12,12 +12,12 @@ public interface WordService {
 
     public Page<WordResponse> findAll(Pageable pageable);
     public Page<WordResponse> findAllByWord(String word, Pageable pageable);
-
     
     public Word addWord(String word);
     public void deleteByWord(String word);
     
     public TranslationAnswer getTranslation(String word);
+    public void saveWord(Word word);
 
     //ENTITY
     public Word findByWord(String word);

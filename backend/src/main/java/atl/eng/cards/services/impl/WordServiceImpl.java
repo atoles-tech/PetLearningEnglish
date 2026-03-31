@@ -1,7 +1,10 @@
 package atl.eng.cards.services.impl;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,11 +20,13 @@ import atl.eng.cards.services.DictionaryService;
 import atl.eng.cards.services.TranslationService;
 import atl.eng.cards.services.WordService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 
 @Service
+@Log4j2
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
-public class WordServiceImpl implements WordService{
+public class WordServiceImpl implements WordService {
 
     private final WordRepository wordRepository;
 
@@ -30,14 +35,20 @@ public class WordServiceImpl implements WordService{
 
     private final WordMapper wordMapper;
 
+    private WordService wordService;
+
+    @Lazy
+    @Autowired
+    public void setWordService(WordService wordService) {
+        this.wordService = wordService;
+    }
+
     @Transactional
     public Word addWord(String word) {
-        if(word.isEmpty()){
+        if (word.isEmpty()) {
             throw new WordNotFoundInDictException(word);
         }
 
-
-        
         if (wordRepository.existsByWord(word)) {
             return wordRepository.findByWord(word).get();
         }
@@ -58,46 +69,44 @@ public class WordServiceImpl implements WordService{
     public TranslationAnswer getTranslation(String word) { // if we want get any translation
         if (word.trim().contains(" ")) {
             return new TranslationAnswer(
-                word, 
-                translationService.translate(word.trim()), 
-                TypeTranslation.CUSTOM
-            );
+                    word,
+                    translationService.translate(word.trim()),
+                    TypeTranslation.CUSTOM);
         }
 
         if (wordRepository.existsByWord(word.trim())) {
             Word currentWord = wordRepository.findByWord(word.trim()).get();
 
             return new TranslationAnswer(
-                word, 
-                wordRepository.findByWord(word.trim()).get().getTranslation(), 
-                TypeTranslation.DICTIONARY,
-                currentWord.getDefinition()
-            );
+                    word,
+                    wordRepository.findByWord(word.trim()).get().getTranslation(),
+                    TypeTranslation.DICTIONARY,
+                    currentWord.getDefinition(),
+                    currentWord.getAudioUrl());
         }
 
         try {
             Word currentWord = dictService.getTranslation(word.trim());
 
             return new TranslationAnswer(
-                word,
-                wordRepository.save(currentWord).getTranslation(),
-                TypeTranslation.DICTIONARY,
-                currentWord.getDefinition()
-            );
+                    word,
+                    wordRepository.save(currentWord).getTranslation(),
+                    TypeTranslation.DICTIONARY,
+                    currentWord.getDefinition(),
+                    currentWord.getAudioUrl());
         } catch (Exception ignored) {
             return new TranslationAnswer(
-                word, 
-                translationService.translate(word.trim()),
-                TypeTranslation.CUSTOM,
-                dictService.getTips(word)
-            );
+                    word,
+                    translationService.translate(word.trim()),
+                    TypeTranslation.CUSTOM,
+                    dictService.getTips(word));
         }
 
     }
 
     public Word findByWord(String word) {
         return wordRepository.findByWord(word)
-            .orElseThrow(()->new WordNotFoundException(word));
+                .orElseThrow(() -> new WordNotFoundException(word));
     }
 
     @Override
@@ -113,7 +122,32 @@ public class WordServiceImpl implements WordService{
     @Override
     public WordResponse findById(Long id) {
         return wordMapper.toWordResponse(wordRepository.findById(id)
-            .orElseThrow(()->new WordNotFoundException(id)));
+                .orElseThrow(() -> new WordNotFoundException(id)));
+    }
+
+    @Override
+    @Transactional
+    public void saveWord(Word word) {
+        wordRepository.save(word);
+    }
+
+    @Scheduled(fixedRate = 300_000)
+    @Transactional
+    public void getDefinitions() {
+        log.info("Started find definitions to words");
+        while (dictService.available()) {
+            String word = dictService.peek();
+            String definition = dictService.getDefinition(word);
+
+            Word currentWord = findByWord(word);
+
+            currentWord.setDefinition(definition);
+
+            wordService.saveWord(currentWord);
+            log.info("Saved definition for word: '{}', definition: '{}'", word, definition);
+        }
+        log.info("Finished find definitions");
+
     }
 
 }
