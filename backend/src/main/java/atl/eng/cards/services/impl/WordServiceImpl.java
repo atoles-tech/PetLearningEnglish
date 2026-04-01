@@ -143,6 +143,11 @@ public class WordServiceImpl implements WordService {
         wordRepository.save(word);
     }
 
+    @Override
+    public List<Word> findAll() {
+        return wordRepository.findAll();
+    }
+
     @Scheduled(fixedRate = 20_000)
     @Transactional
     public void getDefinitions() {

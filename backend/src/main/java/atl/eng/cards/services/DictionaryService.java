@@ -50,7 +50,7 @@ public class DictionaryService {
 
     private final RestTemplate restTemplate;
 
-    private Queue<String> queueWords = new LinkedList<>();
+    private Queue<String> queueWords = new LinkedList<>(); // better change to rabbitmq in future
 
     @PostConstruct
     public void checkDir(){
@@ -100,7 +100,7 @@ public class DictionaryService {
         }
     }
 
-    public String getDefinition(String word) {
+    public String getDefinition(String word) { // TODO: change fetch definitions
         try {
             String definitionJson = restTemplate.getForObject(BASE_URL_DEFINITIONS + word, String.class);
             JSONArray jsonArray = new JSONArray(definitionJson);

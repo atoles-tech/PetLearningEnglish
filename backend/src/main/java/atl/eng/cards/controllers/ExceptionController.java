@@ -14,6 +14,7 @@ import atl.eng.cards.exceptions.cards.WordNotFoundException;
 import atl.eng.cards.exceptions.cards.WordNotFoundInDictException;
 import atl.eng.cards.exceptions.credential.CredentialAlreadyExists;
 import atl.eng.cards.exceptions.dict.URIException;
+import atl.eng.cards.exceptions.games.SessionPronNotFoundException;
 import atl.eng.cards.exceptions.token.IncorrectTokenException;
 import atl.eng.cards.exceptions.token.RefreshTokenNotFound;
 
@@ -21,18 +22,19 @@ import atl.eng.cards.exceptions.token.RefreshTokenNotFound;
 public class ExceptionController {
 
     @ExceptionHandler({
-        CardAlreadyExistsException.class,
-        CredentialAlreadyExists.class
+            CardAlreadyExistsException.class,
+            CredentialAlreadyExists.class
     })
     public ResponseEntity<?> handlExistsExceptions(RuntimeException ex) {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.CONFLICT);
     }
 
     @ExceptionHandler({
-        WordNotFoundInDictException.class,
-        WordNotFoundException.class,
-        RefreshTokenNotFound.class,
-        CredentialNotFoundException.class,
+            WordNotFoundInDictException.class,
+            WordNotFoundException.class,
+            RefreshTokenNotFound.class,
+            CredentialNotFoundException.class,
+            SessionPronNotFoundException.class // TODO: check exception in future to state
     })
     public ResponseEntity<?> handlNotFoundExceptions(RuntimeException ex) {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
@@ -56,18 +58,24 @@ public class ExceptionController {
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<String> handleValidationExceptions(MethodArgumentNotValidException ex) {
         return new ResponseEntity<String>(
-            ex.getBindingResult().getAllErrors()
-                .getFirst()
-                .getDefaultMessage(), HttpStatus.BAD_REQUEST);
-        
+                ex.getBindingResult().getAllErrors()
+                        .getFirst()
+                        .getDefaultMessage(),
+                HttpStatus.BAD_REQUEST);
+
         // Map<String, String> errors = new HashMap<>();
         // ex.getBindingResult().getAllErrors().forEach((error) -> {
-        //     String fieldName = ((FieldError) error).getField();
-        //     String errorMessage = error.getDefaultMessage();
-        //     errors.put(fieldName, errorMessage);
+        // String fieldName = ((FieldError) error).getField();
+        // String errorMessage = error.getDefaultMessage();
+        // errors.put(fieldName, errorMessage);
         // });
 
         // return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(RuntimeException.class)
+    public ResponseEntity<?> handleRuntimeException(Exception ex) {
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     @ExceptionHandler(Exception.class)
