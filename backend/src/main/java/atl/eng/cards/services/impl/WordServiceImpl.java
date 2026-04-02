@@ -49,8 +49,8 @@ public class WordServiceImpl implements WordService {
 
     @PostConstruct
     public void init(){
-        List<Word> words = wordRepository.findWordsWhereDefinitionIsNull();
-        dictService.addWordsToQueue(words.stream().map(w->w.getWord()).toList());
+        //List<Word> words = wordRepository.findWordsWhereDefinitionIsNull();
+        //dictService.addWordsToQueue(words.stream().map(w->w.getWord()).toList());
     }
 
     @Transactional

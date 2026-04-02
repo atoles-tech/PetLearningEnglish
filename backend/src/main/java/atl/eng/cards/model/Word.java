@@ -35,7 +35,7 @@ public class Word {
     @Column(name = "transcription", length = 70)
     private String transcription;
 
-    @Column(name = "translation", length = 70, nullable = false)
+    @Column(name = "translation", length = 120, nullable = false)
     private String translation;
 
     @Column(name = "eng_s", length = 255)

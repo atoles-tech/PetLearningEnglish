@@ -8,6 +8,7 @@ import java.io.OutputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
@@ -53,10 +54,10 @@ public class DictionaryService {
     private Queue<String> queueWords = new LinkedList<>(); // better change to rabbitmq in future
 
     @PostConstruct
-    public void checkDir(){
+    public void checkDir() {
         File file = new File("audio");
 
-        if(!file.isDirectory()){
+        if (!file.isDirectory()) {
             file.mkdir();
             log.info("Directory 'audio' created");
         }
@@ -70,15 +71,25 @@ public class DictionaryService {
                     .get();
 
             Elements transcriptionElements = doc.select("span.transcription");
+
             Elements translationElements = doc.select("div.t_inline_en");
+            Elements translationElements2 = doc.select("div.tr");
+
             Elements engSentences = doc.select("p.ex_o");
             Elements ruSentences = doc.select("p.ex_t");
 
-            String result = translationElements.getFirst().text();
+            String result;
+
+            if (translationElements.isEmpty()) {
+                result = translationElements2.getFirst().text().substring(2);
+            } else {
+                result = translationElements.getFirst().text();
+            }
+
             String[] strings = result.split(",");
 
-            if (strings.length > 2) {
-                result = strings[0] + ", " + strings[1];
+            for(int i = 0; i < 6 || i < strings.length; i++){
+                result = String.join(", ", strings);
             }
 
             queueWords.add(word);
@@ -88,7 +99,7 @@ public class DictionaryService {
             return Word.builder()
                     .word(word)
                     .transcription(transcriptionElements.isEmpty() ? null : transcriptionElements.getFirst().text())
-                    .translation(translationElements.isEmpty() ? null : result)
+                    .translation(result)
                     .engSentences(engSentences.isEmpty() ? null : engSentences.getFirst().text().trim())
                     .ruSentences(ruSentences.isEmpty() ? null : ruSentences.getFirst().text().trim())
                     .audioUrl(BASE_URL_AUDIO + word + ".mp3")
@@ -162,7 +173,7 @@ public class DictionaryService {
             return level;
         } catch (Exception e) {
             log.error("Error with finding level '{}': {}", word, e.getMessage());
-            throw new WordNotFoundInDictException(word);
+            return Level.UNKNOWN;
         }
     }
 
@@ -194,13 +205,12 @@ public class DictionaryService {
             URL url = new URI(audioUrl).toURL();
 
             InputStream in = url.openConnection().getInputStream();
-            OutputStream out = new FileOutputStream("audio/"+word + ".mp3");
+            OutputStream out = new FileOutputStream("audio/" + word + ".mp3");
 
             int n;
             byte[] buffer = new byte[4098];
 
-            while(in.available() > 0){
-                n = in.read(buffer);
+            while ((n = in.read(buffer)) != 1) {
                 out.write(buffer, 0, n);
             }
 
@@ -209,9 +219,9 @@ public class DictionaryService {
 
             log.info("Audio file saved for word: '{}'", word);
         } catch (IOException ex) {
-            log.error("Error save audio file {}",ex.getMessage());
-        } catch (URISyntaxException ex){
-            log.error("Error save audio file {}",ex.getMessage());
+            log.error("Error save audio file {}", ex.getMessage());
+        } catch (URISyntaxException ex) {
+            log.error("Error save audio file {}", ex.getMessage());
         }
     }
 

@@ -47,4 +47,9 @@
         </addColumn>
     </changeSet>
 
+    <changeSet id="words-changelog-change-column-translation" author="atoles">
+        <modifyDataType tableName="words" 
+                        columnName="translation" 
+                        newDataType="VARCHAR(120)"/>
+    </changeSet>
 </databaseChangeLog>
