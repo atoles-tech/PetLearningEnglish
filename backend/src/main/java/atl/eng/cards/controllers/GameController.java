@@ -1,16 +1,17 @@
 package atl.eng.cards.controllers;
 
+import atl.eng.cards.dto.game.StartGamePronunciationRequest;
+import atl.eng.cards.jwt.UserDetailsImpl;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.*;
 
-import atl.eng.cards.dto.game.StartGamePronancuationResponse;
-import atl.eng.cards.services.GamePronancuationService;
+import atl.eng.cards.dto.game.StartGamePronunciationResponse;
+import atl.eng.cards.services.GamePronunciationService;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -18,26 +19,51 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class GameController {
     
-    private final GamePronancuationService gamePronancuationService;
+    private final GamePronunciationService gamePronunciationService;
 
     @PostMapping("/games/pron")
-    //@PreAuthorize("hasAnyRole('USER', 'ADMIN')")
-    public ResponseEntity<StartGamePronancuationResponse> generateNewGameSession(){
-        return ResponseEntity.ok(gamePronancuationService.startGamePronancuationFromAllWords());
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    public ResponseEntity<StartGamePronunciationResponse> generateNewGameSession(
+            @AuthenticationPrincipal UserDetailsImpl userDetails,
+            @RequestBody StartGamePronunciationRequest request
+    ){
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(gamePronunciationService.startGamePronunciation(
+                        request.getWords(),
+                        userDetails.getId()
+                ));
     }
 
     @PostMapping("/games/pron/{sessionId}")
-    //@PreAuthorize("hasAnyRole('USER', 'ADMIN')")
-    public ResponseEntity<Boolean> checkGame(@PathVariable Long sessionId, @RequestParam String word){
-        return ResponseEntity.ok(gamePronancuationService.checkWord(sessionId, word));
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    public ResponseEntity<Boolean> checkGame(
+            @AuthenticationPrincipal UserDetailsImpl userDetails,
+            @PathVariable Long sessionId,
+            @RequestParam String word
+    ){
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(gamePronunciationService.checkSession(
+                        sessionId,
+                        userDetails.getId(),
+                        word
+                ));
     }
     
 
     @GetMapping("/games/pron/{sessionId}/audio")
-    public ResponseEntity<byte[]> getAudio(@PathVariable Long sessionId){
-        return ResponseEntity.status(200)
-            .contentType(MediaType.parseMediaType("audio/mpeg"))
-            .body(gamePronancuationService.getAudio(sessionId));
+    public ResponseEntity<Resource> getAudio(
+            @AuthenticationPrincipal UserDetailsImpl userDetails,
+            @PathVariable Long sessionId
+    ){
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .contentType(MediaType.parseMediaType("audio/mpeg"))
+                .body(gamePronunciationService.getAudio(
+                        sessionId,
+                        userDetails.getId()
+                ));
     }
 
 }

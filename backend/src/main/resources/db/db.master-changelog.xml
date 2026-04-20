@@ -8,5 +8,6 @@
    <include file="db/changes/words-changelog.xml"/>
    <include file="db/changes/credential-changelog.xml"/>
    <include file="db/changes/refresh_token-changelog.xml"/>
+   <include file="db/changes/pronunciation-changelog.xml"/>
 
 </databaseChangeLog>

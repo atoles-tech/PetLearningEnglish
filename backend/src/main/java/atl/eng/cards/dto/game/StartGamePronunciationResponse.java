@@ -9,6 +9,6 @@ import lombok.Setter;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-public class StartGamePronancuationResponse {
+public class StartGamePronunciationResponse {
     private Long sessionId;
 }

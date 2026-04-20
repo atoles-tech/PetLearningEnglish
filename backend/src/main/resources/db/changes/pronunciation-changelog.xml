@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="pronunciation-changelog" author="atoles">
+        <createTable tableName="cards">
+            <column name="id" type="BIGSERIAL" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+
+            <column name="session_id" type="BIGINT">
+            </column>
+
+            <column name="credential_id" type="BIGINT">
+                <constraints referencedTableName="credentials" nullable="false"/>
+            </column>
+
+            <column name="created_at" type="timestamp">
+            </column>
+
+            <column name="session_status" type="varchar(10)">
+            </column>
+
+            <column name="word_id" type="bigint">
+                <constraints referencedTableName="words" nullable="false"/>
+            </column>
+
+            <column name="attempt" type="int">
+            </column>
+
+        </createTable>
+    </changeSet>
+
+</databaseChangeLog>

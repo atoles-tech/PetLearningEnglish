@@ -10,18 +10,19 @@ import java.util.NoSuchElementException;
 import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.stereotype.Service;
 
 import atl.eng.cards.exceptions.games.SessionPronNotFoundException;
 import atl.eng.cards.model.Word;
 
 @Service
-public class WordGamePronancuationStorage {
+public class WordGamePronunciationStorage {
 
-    private Map<Long, Word> currentWords;
-    private Random random;
+    private final Map<Long, Word> currentWords;
+    private final Random random;
 
-    public WordGamePronancuationStorage() {
+    public WordGamePronunciationStorage() {
         this.currentWords = new ConcurrentHashMap<Long, Word>();
         this.random = new Random();
     }
@@ -32,7 +33,7 @@ public class WordGamePronancuationStorage {
         }
 
         Word word = words.get(random.nextInt(0, words.size() - 1));
-        Long id = Long.valueOf(random.nextInt(100000, 9999999));
+        Long id = (long) random.nextInt(100000, 9999999);
 
         currentWords.put(id, word);
 
@@ -55,22 +56,6 @@ public class WordGamePronancuationStorage {
         currentWords.remove(id);
     }
 
-    public byte[] getAudio(Long sessionId) {
-        Word word = currentWords.get(sessionId);
 
-        if (word == null) {
-            throw new SessionPronNotFoundException(sessionId);
-        }
-
-        try (InputStream in = new FileInputStream("audio/" + word.getWord() + ".mp3")) {
-            return in.readAllBytes();
-        } catch (FileNotFoundException ex) {
-            // TODO:
-        } catch (IOException ex) {
-            // TODO:
-        }
-
-        return null;
-    }
 
 }
