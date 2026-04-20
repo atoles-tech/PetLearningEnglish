@@ -1,0 +1,15 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/eng
+    username: postgres
+    password: admin
+
+app:
+  jwt:
+    secret: y6ACUOp8Tu9RP/Gq8skJe3g8L8/g4jeu4yuzS+wsg8DY29BUM1CurCUKYeYmdOO5
+    ttl:
+      access: 600000
+      refresh: 3600000
+
+  frontend:
+    url: http://localhost:3000

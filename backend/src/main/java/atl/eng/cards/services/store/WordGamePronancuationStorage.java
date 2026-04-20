@@ -1,11 +1,9 @@
 package atl.eng.cards.services.store;
 
-import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -58,19 +56,17 @@ public class WordGamePronancuationStorage {
     }
 
     public byte[] getAudio(Long sessionId) {
-        try {
-            Word word = currentWords.get(sessionId);
+        Word word = currentWords.get(sessionId);
 
-            if (word == null) {
-                throw new SessionPronNotFoundException(sessionId);
-            }
+        if (word == null) {
+            throw new SessionPronNotFoundException(sessionId);
+        }
 
-            InputStream in = new FileInputStream("audio/" + word.getWord() + ".mp3");
-
+        try (InputStream in = new FileInputStream("audio/" + word.getWord() + ".mp3")) {
             return in.readAllBytes();
         } catch (FileNotFoundException ex) {
-            // TODO: 
-        } catch (IOException ex){
+            // TODO:
+        } catch (IOException ex) {
             // TODO:
         }
 

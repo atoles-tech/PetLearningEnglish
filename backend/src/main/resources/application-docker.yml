@@ -1,0 +1,14 @@
+spring:
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://db:5432/eng}
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD:postgres}
+app:
+  jwt:
+    secret: ${JWT_SECRET:59884232122f879c11481d2ab401dd6236d1c7432b8b9bdd93b7fe6821b16257}
+    ttl:
+      access: ${JWT_ACCESS_TTL:600000}
+      refresh: ${JWT_REFRESH_TTL:3600000}
+
+  frontend:
+    url: ${FRONTEND_URL:http://frontend:3000}
