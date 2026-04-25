@@ -15,13 +15,13 @@ import atl.eng.cards.services.GamePronunciationService;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/api/v1")
+@RequestMapping("/api/v1/games/pronuncioation")
 @RequiredArgsConstructor
-public class GameController {
+public class GamePronunciationController {
     
     private final GamePronunciationService gamePronunciationService;
 
-    @PostMapping("/games/pron")
+    @PostMapping
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     public ResponseEntity<StartGamePronunciationResponse> generateNewGameSession(
             @AuthenticationPrincipal UserDetailsImpl userDetails,
@@ -35,7 +35,7 @@ public class GameController {
                 ));
     }
 
-    @PostMapping("/games/pron/{sessionId}")
+    @PostMapping("/{sessionId}")
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     public ResponseEntity<Boolean> checkGame(
             @AuthenticationPrincipal UserDetailsImpl userDetails,
@@ -52,7 +52,7 @@ public class GameController {
     }
     
 
-    @GetMapping("/games/pron/{sessionId}/audio")
+    @GetMapping("/{sessionId}/audio")
     public ResponseEntity<Resource> getAudio(
             @AuthenticationPrincipal UserDetailsImpl userDetails,
             @PathVariable Long sessionId
